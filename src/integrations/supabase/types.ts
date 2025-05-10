@@ -86,6 +86,42 @@ export type Database = {
         }
         Relationships: []
       }
+      upvotes: {
+        Row: {
+          id: string
+          app_id: string
+          user_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          app_id: string
+          user_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          app_id?: string
+          user_id?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "upvotes_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "upvotes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

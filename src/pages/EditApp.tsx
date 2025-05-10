@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,8 +20,8 @@ import {
 import { toast } from '@/components/ui/sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { X } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
-// Define form schema
 const formSchema = z.object({
   name: z.string().min(2, 'App name is required and must be at least 2 characters'),
   slogan: z.string().min(5, 'Slogan is required and must be at least 5 characters'),
@@ -33,20 +33,24 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SubmitApp = () => {
+type AppImage = {
+  id: string;
+  app_id: string;
+  image_url: string;
+  display_order: number;
+};
+
+const EditApp = () => {
+  const { id } = useParams();
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showcaseFiles, setShowcaseFiles] = useState<File[]>([]);
   const [showcasePreviews, setShowcasePreviews] = useState<string[]>([]);
-
-  // Redirect if not authenticated
-  if (!isAuthenticated) {
-    navigate('/auth');
-    return null;
-  }
+  const [existingShowcase, setExistingShowcase] = useState<AppImage[]>([]);
+  const [appData, setAppData] = useState<any>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -56,9 +60,58 @@ const SubmitApp = () => {
       platform: undefined,
       description: '',
       app_link: '',
-      category: 'productivity', // Default category
+      category: '',
     },
   });
+
+  // Fetch categories
+  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['categories-all'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  useEffect(() => {
+    const fetchApp = async () => {
+      if (!id || !user) return;
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('apps')
+        .select('*, images:app_images(*)')
+        .eq('id', id)
+        .single();
+      if (error || !data) {
+        toast.error('App not found');
+        navigate('/profile');
+        return;
+      }
+      if (data.user_id !== user.id) {
+        toast.error('You are not allowed to edit this app');
+        navigate('/profile');
+        return;
+      }
+      setAppData(data);
+      form.reset({
+        name: data.name,
+        slogan: data.slogan,
+        platform: data.platform,
+        description: data.description,
+        app_link: data.app_link,
+        category: data.category_id,
+      });
+      setLogoPreview(data.logo_url);
+      setExistingShowcase((data.images || []).sort((a: AppImage, b: AppImage) => a.display_order - b.display_order));
+      setIsLoading(false);
+    };
+    fetchApp();
+    // eslint-disable-next-line
+  }, [id, user]);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -67,7 +120,6 @@ const SubmitApp = () => {
         toast.error('Logo file is too large. Max size is 5MB.');
         return;
       }
-      
       setLogoFile(file);
       setLogoPreview(URL.createObjectURL(file));
     }
@@ -76,13 +128,10 @@ const SubmitApp = () => {
   const handleShowcaseChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      
-      // Limit to 4 images max
-      if (showcaseFiles.length + files.length > 4) {
+      if (existingShowcase.length + showcaseFiles.length + files.length > 4) {
         toast.error('You can upload a maximum of 4 showcase images');
         return;
       }
-      
       const validFiles = files.filter(file => {
         if (file.size > 5 * 1024 * 1024) {
           toast.error(`${file.name} is too large. Max size is 5MB.`);
@@ -90,115 +139,100 @@ const SubmitApp = () => {
         }
         return true;
       });
-      
       const newPreviews = validFiles.map(file => URL.createObjectURL(file));
-      
       setShowcaseFiles(prev => [...prev, ...validFiles]);
       setShowcasePreviews(prev => [...prev, ...newPreviews]);
     }
   };
 
-  const removeShowcaseImage = (index: number) => {
-    setShowcaseFiles(prev => prev.filter((_, i) => i !== index));
-    setShowcasePreviews(prev => prev.filter((_, i) => i !== index));
+  const removeShowcaseImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      setExistingShowcase(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setShowcaseFiles(prev => prev.filter((_, i) => i !== index));
+      setShowcasePreviews(prev => prev.filter((_, i) => i !== index));
+    }
   };
 
   const uploadFile = async (file: File, path: string): Promise<string> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `${path}/${fileName}`;
-    
     const { error: uploadError } = await supabase.storage
       .from('app_assets')
       .upload(filePath, file);
-      
     if (uploadError) {
       throw new Error(uploadError.message);
     }
-    
     const { data } = supabase.storage.from('app_assets').getPublicUrl(filePath);
     return data.publicUrl;
   };
 
   const onSubmit = async (values: FormValues) => {
-    if (!logoFile) {
+    if (!logoPreview && !logoFile) {
       toast.error('Please upload an app logo');
       return;
     }
-    
-    if (showcaseFiles.length === 0) {
+    if (existingShowcase.length + showcaseFiles.length === 0) {
       toast.error('Please upload at least one showcase image');
       return;
     }
-
     setIsLoading(true);
-    
     try {
-      // First, get the category ID from the slug
-      const { data: categoryData, error: categoryError } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('slug', values.category)
-        .single();
-        
-      if (categoryError || !categoryData) {
-        throw new Error('Invalid category selected');
+      let logoUrl = logoPreview;
+      if (logoFile) {
+        logoUrl = await uploadFile(logoFile, 'logos');
       }
-
-      // Upload logo
-      const logoUrl = await uploadFile(logoFile, 'logos');
-      
-      // Create app entry
-      const { data: appData, error: appError } = await supabase
+      // Update app entry
+      const { error: appError } = await supabase
         .from('apps')
-        .insert({
+        .update({
           name: values.name,
           slogan: values.slogan,
           platform: values.platform,
           description: values.description,
           logo_url: logoUrl,
           app_link: values.app_link,
-          category_id: categoryData.id,
-          user_id: user!.id,
-          user_email: user!.email,
+          category_id: values.category,
         })
-        .select('id')
-        .single();
-        
+        .eq('id', id);
       if (appError) throw new Error(appError.message);
-      
-      // Upload showcase images
+      // Remove deleted images
+      if (appData && appData.images) {
+        for (let i = 0; i < appData.images.length; i++) {
+          if (!existingShowcase.find(img => img.id === appData.images[i].id)) {
+            await supabase.from('app_images').delete().eq('id', appData.images[i].id);
+          }
+        }
+      }
+      // Upload new showcase images
       for (let i = 0; i < showcaseFiles.length; i++) {
         const imageUrl = await uploadFile(showcaseFiles[i], 'screenshots');
-        
-        const { error: imageError } = await supabase
-          .from('app_images')
-          .insert({
-            app_id: appData.id,
-            image_url: imageUrl,
-            display_order: i,
-          });
-          
-        if (imageError) throw new Error(imageError.message);
+        await supabase.from('app_images').insert({
+          app_id: id,
+          image_url: imageUrl,
+          display_order: existingShowcase.length + i,
+        });
       }
-      
-      toast.success('App submitted successfully!');
-      navigate('/');
+      toast.success('App updated successfully!');
+      navigate('/profile');
     } catch (error: any) {
-      toast.error(`Error submitting app: ${error.message}`);
+      toast.error(`Error updating app: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div className="container py-12">
       <Card className="mx-auto max-w-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl">Submit Your App</CardTitle>
-          <CardDescription>
-            Share your productivity app with the EfficiencyHub community
-          </CardDescription>
+          <CardTitle className="text-2xl">Edit Your App</CardTitle>
+          <CardDescription>Edit your app details and images below.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -328,13 +362,11 @@ const SubmitApp = () => {
                           required
                         >
                           <option value="">Select a category</option>
-                          <option value="productivity">Productivity</option>
-                          <option value="communication">Communication</option>
-                          <option value="project-management">Project Management</option>
-                          <option value="time-tracking">Time Tracking</option>
-                          <option value="note-taking">Note Taking</option>
-                          <option value="task-management">Task Management</option>
-                          <option value="other">Other</option>
+                          {categories?.map((cat: any) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
                         </select>
                       </FormControl>
                       <FormMessage />
@@ -364,7 +396,7 @@ const SubmitApp = () => {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea 
+                        <Textarea
                           placeholder="Describe what your app does and its key features"
                           className="h-32"
                           {...field}
@@ -381,8 +413,21 @@ const SubmitApp = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Upload up to 4 screenshots or promotional images (max 5MB each)
                   </p>
-                  
                   <div className="grid grid-cols-2 gap-4 mb-4">
+                    {existingShowcase.map((img, index) => (
+                      <div key={img.id} className="relative rounded overflow-hidden border h-36">
+                        <img src={img.image_url} alt={`Showcase ${index + 1}`} className="h-full w-full object-cover" />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-0 right-0 bg-white/80 rounded-full p-1 m-1"
+                          onClick={() => removeShowcaseImage(index, true)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
                     {showcasePreviews.map((preview, index) => (
                       <div key={index} className="relative rounded overflow-hidden border h-36">
                         <img src={preview} alt={`Showcase ${index + 1}`} className="h-full w-full object-cover" />
@@ -391,14 +436,13 @@ const SubmitApp = () => {
                           variant="ghost"
                           size="icon"
                           className="absolute top-0 right-0 bg-white/80 rounded-full p-1 m-1"
-                          onClick={() => removeShowcaseImage(index)}
+                          onClick={() => removeShowcaseImage(index, false)}
                         >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
-                    
-                    {showcaseFiles.length < 4 && (
+                    {existingShowcase.length + showcaseFiles.length < 4 && (
                       <div className="flex h-36 items-center justify-center rounded border border-dashed">
                         <Input
                           type="file"
@@ -418,13 +462,12 @@ const SubmitApp = () => {
                   </div>
                 </div>
               </div>
-
               <Button
                 type="submit"
                 className="w-full bg-efficiency-600"
                 disabled={isLoading}
               >
-                {isLoading ? 'Submitting...' : 'Submit App'}
+                {isLoading ? 'Saving...' : 'Save Changes'}
               </Button>
             </form>
           </Form>
@@ -434,4 +477,4 @@ const SubmitApp = () => {
   );
 };
 
-export default SubmitApp;
+export default EditApp; 

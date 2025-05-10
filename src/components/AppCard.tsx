@@ -1,60 +1,79 @@
-
-import { Star } from 'lucide-react';
 import { App } from '@/types';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { ThumbsUp } from 'lucide-react';
 
 interface AppCardProps {
   app: App;
+  featuredRank?: number;
 }
 
-const AppCard = ({ app }: AppCardProps) => {
+const AppCard = ({ app, featuredRank }: AppCardProps) => {
   return (
-    <div className="app-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md">
-      <a href="#" className="block">
-        <div className="p-4">
-          <div className="flex items-start">
-            <img 
-              src={app.icon} 
-              alt={`${app.name} icon`} 
-              className="w-12 h-12 rounded-lg mr-3 object-cover"
-            />
-            <div>
-              <h3 className="font-medium text-dark truncate">{app.name}</h3>
-              <div className="flex items-center mt-1">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={14}
-                      className={`${
-                        i < Math.round(app.rating)
-                          ? 'text-yellow-400 fill-yellow-400'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-500 ml-1">
-                  ({app.reviews.toLocaleString()})
-                </span>
-              </div>
-              <div className="mt-1">
-                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
-                  {app.category}
-                </Badge>
-                {app.featured && (
-                  <Badge variant="outline" className="ml-2 text-xs border-efficiency-300 text-efficiency-600 bg-efficiency-50">
-                    Featured
-                  </Badge>
+    <div className="app-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md relative w-full h-64 flex flex-col">
+      {featuredRank && featuredRank >= 1 && featuredRank <= 4 && (
+        <div className={`absolute top-2 left-2 z-10 flex items-center gap-1`}> 
+          <span className={`inline-block rounded-full bg-yellow-400 text-xs font-bold text-white px-2 py-0.5 shadow`}>#{featuredRank}</span>
+        </div>
+      )}
+      <Link to={`/app/${app.id}`} className="block flex-1">
+        <div className="p-4 h-full flex flex-col justify-between">
+          <div>
+            <div className="flex items-start">
+              <img 
+                src={app.logo_url} 
+                alt={`${app.name} logo`} 
+                className="w-12 h-12 rounded-lg mr-3 object-cover"
+              />
+              <div className="flex-1">
+                <h3 className="font-medium text-dark truncate">{app.name}</h3>
+                {(app.platform || app.category?.name) && (
+                  <div className="mt-1 flex items-center gap-2">
+                    {app.platform && (
+                      <span className="inline-block rounded bg-blue-600 text-white text-xs px-2 py-0.5 font-semibold">
+                        {app.platform}
+                      </span>
+                    )}
+                    {app.category?.name && (
+                      <span className="inline-block rounded bg-efficiency-600 text-white text-xs px-2 py-0.5 font-semibold">
+                        {app.category.name}
+                      </span>
+                    )}
+                    {featuredRank && featuredRank >= 1 && featuredRank <= 4 && (
+                      <span className="inline-block rounded bg-yellow-400 text-white text-xs px-2 py-0.5 font-semibold ml-1">Featured</span>
+                    )}
+                  </div>
                 )}
+                <p className="text-sm text-gray-500 mt-1 truncate max-w-full">{app.slogan}</p>
               </div>
             </div>
+            <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+              {app.description}
+            </p>
           </div>
-          <p className="text-sm text-gray-600 mt-3 line-clamp-2">
-            {app.description}
-          </p>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className={`flex items-center gap-1 text-sm ${app.is_upvoted ? 'text-efficiency-600' : 'text-gray-500'}`}> 
+                <ThumbsUp
+                  size={16}
+                  className={app.is_upvoted ? 'fill-efficiency-600 text-efficiency-600' : 'text-gray-400'}
+                  fill={app.is_upvoted ? 'currentColor' : 'none'}
+                />
+                <span>{typeof app.upvotes_count === 'number' && !isNaN(app.upvotes_count) ? app.upvotes_count : 0}</span>
+              </span>
+            </div>
+            <a 
+              href={app.app_link} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-efficiency-600 hover:text-efficiency-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Visit App
+            </a>
+          </div>
         </div>
-      </a>
+      </Link>
     </div>
   );
 };
