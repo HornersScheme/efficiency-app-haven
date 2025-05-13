@@ -26,7 +26,7 @@ const AppCard = ({ app, featuredRank }: AppCardProps) => {
                 className="w-12 h-12 rounded-lg mr-3 object-cover"
               />
               <div className="flex-1">
-                <h3 className="font-medium text-dark truncate">{app.name}</h3>
+                <h3 className="font-medium text-dark break-words">{app.name}</h3>
                 {(app.platform || app.category?.name) && (
                   <div className="mt-1 flex items-center gap-2">
                     {app.platform && (
@@ -44,7 +44,7 @@ const AppCard = ({ app, featuredRank }: AppCardProps) => {
                     )}
                   </div>
                 )}
-                <p className="text-sm text-gray-500 mt-1 truncate max-w-full">{app.slogan}</p>
+                <p className="text-sm text-gray-500 mt-1 break-words">{app.slogan}</p>
               </div>
             </div>
             <p className="text-sm text-gray-600 mt-2 line-clamp-2">
