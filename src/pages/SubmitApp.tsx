@@ -399,21 +399,24 @@ const SubmitApp = () => {
                     ))}
                     
                     {showcaseFiles.length < 4 && (
-                      <div className="flex h-36 items-center justify-center rounded border border-dashed">
+                      <label
+                        htmlFor="showcase-upload"
+                        className="flex h-36 w-full items-center justify-center rounded border border-dashed cursor-pointer text-center text-sm text-muted-foreground transition hover:bg-gray-50"
+                        style={{ minWidth: '100px' }}
+                      >
                         <Input
                           type="file"
                           accept="image/*"
+                          multiple
                           onChange={handleShowcaseChange}
                           className="hidden"
                           id="showcase-upload"
                         />
-                        <label
-                          htmlFor="showcase-upload"
-                          className="cursor-pointer text-center text-sm text-muted-foreground"
-                        >
+                        <div>
                           Add Image
-                        </label>
-                      </div>
+                          <div className="text-xs text-gray-400 mt-1">Recommended: 800x600px</div>
+                        </div>
+                      </label>
                     )}
                   </div>
                 </div>

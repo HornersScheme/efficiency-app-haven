@@ -2,6 +2,7 @@ import { App } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { ThumbsUp } from 'lucide-react';
+import { useState } from 'react';
 
 interface AppCardProps {
   app: App;
@@ -9,6 +10,8 @@ interface AppCardProps {
 }
 
 const AppCard = ({ app, featuredRank }: AppCardProps) => {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div className="app-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md relative w-full h-64 flex flex-col">
       {featuredRank && featuredRank >= 1 && featuredRank <= 4 && (
@@ -21,9 +24,13 @@ const AppCard = ({ app, featuredRank }: AppCardProps) => {
           <div>
             <div className="flex items-start">
               <img 
-                src={app.logo_url} 
+                src={imgError ? '/fallback-logo.png' : app.logo_url} 
                 alt={`${app.name} logo`} 
                 className="w-12 h-12 rounded-lg mr-3 object-cover"
+                onError={() => setImgError(true)}
+                loading="lazy"
+                width={48}
+                height={48}
               />
               <div className="flex-1">
                 <h3 className="font-medium text-dark break-words">{app.name}</h3>
