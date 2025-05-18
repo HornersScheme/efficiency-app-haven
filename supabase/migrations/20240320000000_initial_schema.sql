@@ -20,6 +20,7 @@ CREATE TABLE apps (
     category_id UUID REFERENCES categories(id) NOT NULL,
     user_id UUID REFERENCES auth.users(id) NOT NULL,
     upvotes_count INTEGER DEFAULT 0,
+    is_sponsored BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );

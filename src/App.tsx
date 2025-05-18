@@ -20,6 +20,7 @@ import Profile from "./pages/Profile";
 import EditApp from "./pages/EditApp";
 import { FeaturedAppsProvider } from './contexts/FeaturedAppsContext';
 import UserProfile from "./pages/UserProfile";
+import Sponsor from "./pages/Sponsor";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/edit-app/:id" element={<EditApp />} />
               <Route path="/user/:userId" element={<UserProfile />} />
+              <Route path="/sponsor" element={<Sponsor />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

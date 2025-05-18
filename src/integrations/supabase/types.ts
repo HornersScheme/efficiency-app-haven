@@ -55,6 +55,7 @@ export type Database = {
           slogan: string
           updated_at: string | null
           user_id: string
+          is_sponsored: boolean
         }
         Insert: {
           app_link: string
@@ -69,6 +70,7 @@ export type Database = {
           slogan: string
           updated_at?: string | null
           user_id: string
+          is_sponsored?: boolean
         }
         Update: {
           app_link?: string
@@ -83,8 +85,63 @@ export type Database = {
           slogan?: string
           updated_at?: string | null
           user_id?: string
+          is_sponsored?: boolean
         }
         Relationships: []
+      }
+      sponsored_apps: {
+        Row: {
+          id: string
+          app_id: string
+          user_id: string
+          start_date: string
+          end_date: string
+          status: 'pending' | 'paid' | 'rejected'
+          message: string | null
+          payment_link: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          app_id: string
+          user_id: string
+          start_date: string
+          end_date: string
+          status?: 'pending' | 'paid' | 'rejected'
+          message?: string | null
+          payment_link?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          app_id?: string
+          user_id?: string
+          start_date?: string
+          end_date?: string
+          status?: 'pending' | 'paid' | 'rejected'
+          message?: string | null
+          payment_link?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsored_apps_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsored_apps_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       upvotes: {
         Row: {
@@ -124,7 +181,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      current_sponsor: {
+        Row: {
+          id: string
+          app_id: string
+          user_id: string
+          start_date: string
+          end_date: string
+          status: 'pending' | 'paid' | 'rejected'
+          message: string | null
+          payment_link: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+      }
     }
     Functions: {
       [_ in never]: never

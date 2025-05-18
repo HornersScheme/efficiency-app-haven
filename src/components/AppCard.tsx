@@ -13,10 +13,15 @@ const AppCard = ({ app, featuredRank }: AppCardProps) => {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="app-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md relative w-full h-64 flex flex-col">
+    <div className={`app-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md relative w-full ${app.is_sponsored ? 'h-80' : 'h-64'} flex flex-col`}>
       {featuredRank && featuredRank >= 1 && featuredRank <= 4 && (
         <div className={`absolute top-2 left-2 z-10 flex items-center gap-1`}> 
           <span className={`inline-block rounded-full bg-yellow-400 text-xs font-bold text-white px-2 py-0.5 shadow`}>#{featuredRank}</span>
+        </div>
+      )}
+      {app.is_sponsored && (
+        <div className="absolute top-2 right-2 z-10">
+          <span className="inline-block rounded-full bg-blue-500 text-xs font-bold text-white px-2 py-0.5 shadow">Sponsored</span>
         </div>
       )}
       <Link to={`/app/${app.id}`} className="block flex-1">
@@ -26,14 +31,14 @@ const AppCard = ({ app, featuredRank }: AppCardProps) => {
               <img 
                 src={imgError ? '/fallback-logo.png' : app.logo_url} 
                 alt={`${app.name} logo`} 
-                className="w-12 h-12 rounded-lg mr-3 object-cover"
+                className={`${app.is_sponsored ? 'w-16 h-16' : 'w-12 h-12'} rounded-lg mr-3 object-cover`}
                 onError={() => setImgError(true)}
                 loading="lazy"
-                width={48}
-                height={48}
+                width={app.is_sponsored ? 64 : 48}
+                height={app.is_sponsored ? 64 : 48}
               />
-              <div className="flex-1">
-                <h3 className="font-medium text-dark break-words">{app.name}</h3>
+              <div>
+                <h3 className={`font-medium text-dark break-words ${app.is_sponsored ? 'text-xl' : ''}`}>{app.name}</h3>
                 {(app.platform || app.category?.name) && (
                   <div className="mt-1 flex items-center gap-2">
                     {app.platform && (
@@ -51,14 +56,15 @@ const AppCard = ({ app, featuredRank }: AppCardProps) => {
                     )}
                   </div>
                 )}
-                <p className="text-sm text-gray-500 mt-1 break-words">{app.slogan}</p>
+                <p className={`text-sm text-gray-500 mt-1 break-words ${app.is_sponsored ? 'text-base' : ''}`}>{app.slogan}</p>
               </div>
             </div>
-            <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+            <p className={`text-sm text-gray-600 mt-2 ${app.is_sponsored ? 'text-base line-clamp-3' : 'line-clamp-2'}`}>
               {app.description}
             </p>
           </div>
-          <div className="mt-4 flex items-center justify-between">
+          
+          <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-2">
               <span className={`flex items-center gap-1 text-sm ${app.is_upvoted ? 'text-efficiency-600' : 'text-gray-500'}`}> 
                 <ThumbsUp
