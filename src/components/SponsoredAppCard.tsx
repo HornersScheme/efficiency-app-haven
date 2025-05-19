@@ -57,6 +57,17 @@ const SponsoredAppCard: React.FC<SponsoredAppCardProps> = ({ app, sponsor }) => 
           </div>
         </div>
       </Link>
+      <div className="mt-6 text-center relative z-20">
+        <Link to="/sponsor">
+          <button className="bg-gradient-to-r from-efficiency-500 to-efficiency-600 hover:from-efficiency-600 hover:to-efficiency-700 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg flex items-center justify-center mx-auto transition-all duration-200" style={{ boxShadow: '0 6px 32px 0 rgba(30, 64, 175, 0.15)' }}>
+            <svg className="w-7 h-7 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118l-3.388-2.46c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.967z" /></svg>
+            Sponsor Your App
+          </button>
+        </Link>
+        <p className="mt-2 text-gray-700 text-sm font-medium">
+          Get featured in front of 5,000+ focused users every week.
+        </p>
+      </div>
     </div>
   );
 };

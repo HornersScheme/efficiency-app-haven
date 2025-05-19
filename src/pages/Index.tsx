@@ -118,15 +118,6 @@ const Index = () => {
       <Header />
       <Hero />
       <SponsoredApp />
-      <div className="container mx-auto px-4 py-8 text-center">
-        <Link to="/sponsor">
-          <Button size="lg" className="bg-gradient-to-r from-efficiency-500 to-efficiency-600 hover:from-efficiency-600 hover:to-efficiency-700 text-white">
-            <Star className="mr-2 h-5 w-5" />
-            Sponsor Your App
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </Link>
-      </div>
       {/* Featured Apps Section: show all uploaded apps */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">

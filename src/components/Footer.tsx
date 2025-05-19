@@ -41,6 +41,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><a href="/about" className="text-gray-400 hover:text-white">About Me</a></li>
               <li><button onClick={() => window.location.href = '/submit-app'} className="text-gray-400 hover:text-white w-full text-left">Submit App</button></li>
+              <li><button onClick={() => window.location.href = '/sponsor'} className="text-gray-400 hover:text-white w-full text-left">Sponsor Your App</button></li>
             </ul>
           </div>
           

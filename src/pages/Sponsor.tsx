@@ -205,8 +205,30 @@ const Sponsor = () => {
       <Header />
       <main className="flex-1 py-12">
         <div className="container mx-auto px-4 max-w-2xl">
-          <h1 className="text-3xl font-bold mb-8">🌟 Sponsor a Week on EfficiencyHub</h1>
-          
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-center">Promote Your App to 5,000+ Focused Users</h1>
+          <p className="text-lg text-gray-600 mb-8 text-center">Reach a high-intent audience by sponsoring the top spot on EfficiencyHub.</p>
+
+          {/* What You Get Section */}
+          <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
+            <h2 className="text-xl font-semibold mb-3 text-blue-800">What You Get:</h2>
+            <ul className="space-y-2 text-base text-blue-900">
+              <li className="flex items-center"><span className="mr-2">📣</span> Top placement on homepage for 7 days</li>
+              <li className="flex items-center"><span className="mr-2">👀</span> Exposure to 5,000+ weekly viewers</li>
+              <li className="flex items-center"><span className="mr-2">🔗</span> Direct traffic to your app</li>
+              <li className="flex items-center"><span className="mr-2">✅</span> Sponsorship badge and visual branding</li>
+              <li className="flex items-center"><span className="mr-2">📨</span> Potential email & featured promotion</li>
+            </ul>
+          </div>
+
+          {/* Styled Note Box */}
+          <div className="mb-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+            <ul className="list-disc list-inside text-yellow-900 text-base space-y-1">
+              <li><strong>Sponsorship starts on a Monday</strong></li>
+              <li><strong>Banner size:</strong> 1220×400 (PNG/JPG/WebP)</li>
+              <li>You'll be notified by email after review</li>
+            </ul>
+          </div>
+
           {/* Why Sponsor Section */}
           <Card className="mb-8">
             <CardHeader>
@@ -406,8 +428,8 @@ const Sponsor = () => {
                     </p>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Request Sponsorship'}
+                  <Button type="submit" className="w-full py-4 text-lg bg-gradient-to-r from-efficiency-500 to-efficiency-600 hover:from-efficiency-600 hover:to-efficiency-700 text-white font-bold shadow-lg flex items-center justify-center transition-all duration-200" disabled={isSubmitting}>
+                    ✅ Submit My Sponsorship Request
                   </Button>
                 </form>
               </Form>

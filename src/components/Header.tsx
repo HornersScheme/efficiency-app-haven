@@ -80,6 +80,11 @@ const Header = () => {
                     Submit App
                   </Button>
                 </Link>
+                <Link to="/sponsor">
+                  <Button className="bg-yellow-500 hover:bg-yellow-600 text-white hidden md:inline-flex ml-2">
+                    Sponsor
+                  </Button>
+                </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="hidden md:inline-flex focus:outline-none">
@@ -152,6 +157,11 @@ const Header = () => {
                     <Link to="/submit-app">
                       <Button className="w-full bg-efficiency-600 hover:bg-efficiency-700">
                         Submit App
+                      </Button>
+                    </Link>
+                    <Link to="/sponsor">
+                      <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white mt-2">
+                        Sponsor
                       </Button>
                     </Link>
                     <DropdownMenu>
