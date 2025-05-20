@@ -20,6 +20,14 @@ import {
 import { toast } from '@/components/ui/sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { X } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 // Define form schema
 const formSchema = z.object({
@@ -41,6 +49,7 @@ const SubmitApp = () => {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [showcaseFiles, setShowcaseFiles] = useState<File[]>([]);
   const [showcasePreviews, setShowcasePreviews] = useState<string[]>([]);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   // Redirect if not authenticated
   if (!isAuthenticated) {
@@ -183,7 +192,7 @@ const SubmitApp = () => {
       }
       
       toast.success('App submitted successfully!');
-      navigate('/');
+      setShowSuccessDialog(true);
     } catch (error: any) {
       toast.error(`Error submitting app: ${error.message}`);
     } finally {
@@ -433,6 +442,36 @@ const SubmitApp = () => {
           </Form>
         </CardContent>
       </Card>
+
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Thanks for submitting your app! 🚀</DialogTitle>
+            <DialogDescription>
+              Want to give it a boost? Feature it as the Sponsored App of the Week to get more eyes on it.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                navigate('/');
+              }}
+            >
+              Maybe Later
+            </Button>
+            <Button
+              onClick={() => {
+                setShowSuccessDialog(false);
+                navigate('/sponsor');
+              }}
+            >
+              Sponsor My App
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
