@@ -43,7 +43,8 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const SPONSOR_PRICE = 25; // $25 per week
+const SPONSOR_PRICE = 10; // $10 per week (60% off original $25)
+const ORIGINAL_PRICE = 25;
 
 // Helper function to generate upcoming weeks
 const getUpcomingWeeks = (count = 6) => {
@@ -59,7 +60,10 @@ const getUpcomingWeeks = (count = 6) => {
     weeks.push({ start, end });
     date.setDate(date.getDate() + 7);
   }
-  return weeks;
+  // Filter out the week starting May 26, 2024
+  return weeks.filter(week =>
+    !(week.start.getFullYear() === 2024 && week.start.getMonth() === 4 && week.start.getDate() === 26)
+  );
 };
 
 const Sponsor = () => {
@@ -208,6 +212,17 @@ const Sponsor = () => {
           <h1 className="text-3xl md:text-4xl font-bold mb-2 text-center">Promote Your App to 5,000+ Focused Users</h1>
           <p className="text-lg text-gray-600 mb-8 text-center">Reach a high-intent audience by sponsoring the top spot on EfficiencyHub.</p>
 
+          {/* Discount Banner */}
+          <div className="mb-8 p-4 bg-gradient-to-r from-red-500 to-red-600 rounded-xl text-white text-center">
+            <h2 className="text-2xl font-bold mb-2">🔥 LIMITED TIME OFFER 🔥</h2>
+            <p className="text-lg">
+              <span className="line-through text-red-200">${ORIGINAL_PRICE}</span>
+              <span className="text-3xl font-bold mx-2">${SPONSOR_PRICE}</span>
+              <span className="text-yellow-300 font-bold">per week</span>
+            </p>
+            <p className="text-sm mt-2 text-red-100">Save 60% on your sponsorship!</p>
+          </div>
+
           {/* What You Get Section */}
           <div className="mb-8 p-6 bg-blue-50 border border-blue-200 rounded-xl">
             <h2 className="text-xl font-semibold mb-3 text-blue-800">What You Get:</h2>
@@ -239,7 +254,12 @@ const Sponsor = () => {
                 <li>Be seen by productivity-focused users</li>
                 <li>Homepage spotlight for 7 days</li>
                 <li>Limited to 1 app per week (creates urgency)</li>
-                <li>Only ${SPONSOR_PRICE} per week</li>
+                <li>
+                  <span className="line-through text-gray-500">${ORIGINAL_PRICE}</span>
+                  <span className="text-red-600 font-bold ml-2">${SPONSOR_PRICE}</span>
+                  <span className="text-red-600 font-bold"> per week</span>
+                  <span className="ml-2 bg-red-100 text-red-600 px-2 py-0.5 rounded text-sm">60% OFF!</span>
+                </li>
               </ul>
             </CardContent>
           </Card>
@@ -353,6 +373,12 @@ const Sponsor = () => {
                             type="date"
                             {...field}
                             min={format(new Date(), 'yyyy-MM-dd')}
+                            // Prevent May 26, 2024 from being selected
+                            onChange={e => {
+                              const selected = e.target.value;
+                              if (selected === '2024-05-26') return; // Ignore selection
+                              field.onChange(e);
+                            }}
                           />
                         </FormControl>
                         <FormDescription>
