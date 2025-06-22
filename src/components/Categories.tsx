@@ -11,7 +11,7 @@ import {
   MessageSquare, 
   MoreHorizontal 
 } from 'lucide-react';
-import { sanitize } from 'dompurify';
+import DOMPurify from 'dompurify';
 
 const getIcon = (iconName: string) => {
   switch (iconName) {
@@ -94,7 +94,7 @@ const Categories = () => {
             >
               <div
                 className="text-3xl mb-2"
-                dangerouslySetInnerHTML={{ __html: sanitize(category.icon || '') }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(category.icon || '') }}
               />
               <span className="text-center font-medium text-sm">{category.name}</span>
             </Link>
