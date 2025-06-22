@@ -13,7 +13,7 @@ const AppCard = ({ app, featuredRank }: AppCardProps) => {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className={`app-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md relative w-full ${app.is_sponsored ? 'h-80' : 'h-64'} flex flex-col`}>
+    <div className={`app-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md relative w-full ${app.is_sponsored ? 'h-80' : 'h-64'} flex flex-col isolate`}>
       {featuredRank && featuredRank >= 1 && featuredRank <= 4 && (
         <div className={`absolute top-2 left-2 z-10 flex items-center gap-1`}> 
           <span className={`inline-block rounded-full bg-yellow-400 text-xs font-bold text-white px-2 py-0.5 shadow`}>#{featuredRank}</span>

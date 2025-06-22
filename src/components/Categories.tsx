@@ -9,42 +9,57 @@ import {
   Folder, 
   Users, 
   MessageSquare, 
-  MoreHorizontal 
+  MoreHorizontal,
+  Lightbulb
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
 
 const getIcon = (iconName: string) => {
   switch (iconName) {
     case 'check-square':
-      return <CheckSquare size={24} className="text-efficiency-600" />;
+      return <CheckSquare className="h-8 w-8 text-gray-600" />;
     case 'file-text':
-      return <FileText size={24} className="text-efficiency-600" />;
+      return <FileText className="h-8 w-8 text-gray-600" />;
     case 'clock':
-      return <Clock size={24} className="text-efficiency-600" />;
+      return <Clock className="h-8 w-8 text-gray-600" />;
     case 'folder':
-      return <Folder size={24} className="text-efficiency-600" />;
+      return <Folder className="h-8 w-8 text-gray-600" />;
     case 'users':
-      return <Users size={24} className="text-efficiency-600" />;
+      return <Users className="h-8 w-8 text-gray-600" />;
     case 'message-square':
-      return <MessageSquare size={24} className="text-efficiency-600" />;
+      return <MessageSquare className="h-8 w-8 text-gray-600" />;
+    case 'productivity':
+      return <Lightbulb className="h-8 w-8 text-gray-600" />;
     default:
-      return <MoreHorizontal size={24} className="text-efficiency-600" />;
+      return <MoreHorizontal className="h-8 w-8 text-gray-600" />;
   }
 };
 
 const Categories = () => {
   const { data: categories, isLoading } = useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories-sorted'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select(`
-          *,
-          apps:apps(count)
-        `);
+      const { data } = await supabase.from('categories').select('*, apps(count)');
+      return data || [];
+    },
+    select: (data) => {
+      if (!data) return [];
+      const customSort = (a: any, b: any) => {
+        const order: { [key: string]: number } = { 'Productivity': 1, 'Other': 2 };
+        const aIsSpecial = order[a.name] !== undefined;
+        const bIsSpecial = order[b.name] !== undefined;
 
-      if (error) throw error;
-      return data as (Category & { apps: { count: number }[] })[];
+        if (aIsSpecial && bIsSpecial) {
+          return order[a.name] - order[b.name];
+        } else if (aIsSpecial) {
+          return 1;
+        } else if (bIsSpecial) {
+          return -1;
+        } else {
+          return a.name.localeCompare(b.name);
+        }
+      };
+      return [...data].sort(customSort);
     }
   });
 
@@ -86,16 +101,15 @@ const Categories = () => {
         </div>
         
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {categories.slice(0, 10).map((category) => (
+          {categories?.slice(0, 10).map((category) => (
             <Link
               key={category.id}
               to={`/category/${category.slug}`}
               className="category-card flex flex-col items-center justify-center p-4 bg-white border rounded-lg shadow-sm hover:shadow-lg hover:border-blue-500 transition-all duration-200"
             >
-              <div
-                className="text-3xl mb-2"
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(category.icon || '') }}
-              />
+              <div className="text-3xl mb-2">
+                {getIcon(category.icon || (category.name === 'Productivity' ? 'productivity' : ''))}
+              </div>
               <span className="text-center font-medium text-sm">{category.name}</span>
             </Link>
           ))}
