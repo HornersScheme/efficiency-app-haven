@@ -11,6 +11,7 @@ import {
   MessageSquare, 
   MoreHorizontal 
 } from 'lucide-react';
+import { sanitize } from 'dompurify';
 
 const getIcon = (iconName: string) => {
   switch (iconName) {
@@ -84,43 +85,20 @@ const Categories = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories?.map((category) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {categories.slice(0, 10).map((category) => (
             <Link
               key={category.id}
               to={`/category/${category.slug}`}
-              className="flex items-center bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+              className="category-card flex flex-col items-center justify-center p-4 bg-white border rounded-lg shadow-sm hover:shadow-lg hover:border-blue-500 transition-all duration-200"
             >
-              <div className="p-2 bg-efficiency-50 rounded-md">
-                {getIcon(category.icon)}
-              </div>
-              <div className="ml-4 flex-1">
-                <h3 className="font-medium text-dark">{category.name}</h3>
-                <p className="text-sm text-gray-500">{category.apps[0].count} apps</p>
-              </div>
+              <div
+                className="text-3xl mb-2"
+                dangerouslySetInnerHTML={{ __html: sanitize(category.icon || '') }}
+              />
+              <span className="text-center font-medium text-sm">{category.name}</span>
             </Link>
           ))}
-        </div>
-        
-        <div className="mt-8 text-center">
-          <Link 
-            to="/categories" 
-            className="text-efficiency-600 hover:text-efficiency-700 font-medium inline-flex items-center"
-          >
-            View all categories 
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 ml-1"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </Link>
         </div>
       </div>
     </section>
